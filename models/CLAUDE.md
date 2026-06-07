@@ -10,7 +10,7 @@ Use Higgsfield's **Nano Banana Pro** model for generating Character Sheets and C
 2. **Generate Close-up Shots** → Create detail close-up shots. Save as `model-*-detail-*.png`
 3. **Upload Images** → Upload character sheets, close-up shots, and model images to Higgsfield
 4. **Write Descriptions** → Follow `Descriptions.template.md` to create `Descriptions.md`. Add `## Model *` sections per model. All in English.
-5. **Write ref-ids.md** -> If you do upload Charactor refs, paste the UUID and URL into `../ref-ids.md` and write a matching text description in `Descriptions.md'.
+5. **Write ref-ids.md** → If you do upload Charactor refs, paste the UUID and URL into `../ref-ids.md` and write a matching text description in `Descriptions.md'.
 
 ## Per-Model Section Content
 
