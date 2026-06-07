@@ -62,7 +62,7 @@ Maintain a single Excel file (`feedback-tracker.xlsx`) with three sheets.
 - `Model`: generation model used (e.g. `nano_banana_2`, `gpt_image_2`, `seedance_2_0`)
 - `Prompt`: full prompt used to generate the asset
 - `References` (video only): UUIDs of reference images or videos passed to the job
-- `UUID`: Higgsfield upload ID or Job ID
+- `UUID`: Asset ID uploaded into higgsfield
 - `Local Path`: full asset path on local disk
 - `Source URL`: full asset URL — always the complete URL, never abbreviated or truncated
 - `Status`: red = rejected · green = approved · yellow = pending (toggleable cell)
