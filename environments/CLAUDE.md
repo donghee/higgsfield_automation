@@ -7,7 +7,7 @@ Process all environment images in the current directory; Upload All Images into 
 1. **Upload Images** → Upload every environment image in the current directory to Higgsfield
 2. **Analyze Images** → Analyze the content of each image in detail
 3. **Write Descriptions** → Follow `Descriptions.template.md` to create `Descriptions.md`. Add an `## FILENAME -- TITLE` section per image. All in English.
-4. **Write ref-ids.md** -> If you do upload environment refs, paste the UUID and URL into `../ref-ids.md` and write a matching text description in `Descriptions.md'.
+4. **Write ref-ids.md** → If you do upload environment refs, paste the UUID and URL into `../ref-ids.md` and write a matching text description in `Descriptions.md'.
 
 ## Per-Environment Section Content
 
