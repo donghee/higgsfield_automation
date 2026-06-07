@@ -154,7 +154,7 @@ Each flag accepts either a local file path (auto-uploaded) or a UUID (upload id 
 
 | Model | Character Sheet UUID |
 |-------|----------------------|
-| Model 1 | `522d8454-047b-4acc-8002-d93eb7407a12` |
+| Model 1 | `` |
 | Model 2 | `` |
 
 
