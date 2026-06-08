@@ -58,6 +58,78 @@
 | `medias` | array | — | `--start-image` sets first frame; `--end-image` sets last frame; `--image` for character/env refs; `--video` for reference video; `--audio` for lipsync/soundtrack |
 
 
+### Seedance 2.0 in OpenRouter (`bytedance/seedance-2.0`)
+
+OpenRouter video generation is **async**: submit → poll → download. A single request never returns the video (generation takes 30s–a few minutes). Requires `OPENROUTER_API_KEY`.
+
+| Param | Type | Notes |
+|---|---|---|
+| `model` | string | Required — `bytedance/seedance-2.0` |
+| `prompt` | string | Required |
+| `duration` | int | Must be one of the model's `supported_durations` (discrete set, not a range) |
+| `resolution` | string | `480p` `720p` `1080p` — validate against `supported_resolutions` |
+| `aspect_ratio` | string | e.g. `16:9` `9:16` `4:3` `3:4` `1:1` `21:9` — validate against `supported_aspect_ratios` |
+| `size` | string | `"WxH"`, interchangeable with `resolution` + `aspect_ratio` |
+| `seed` | int | Honored only if the model's `seed` capability is true |
+| `frame_images[]` | array | Image-to-video. Each: `{ type:"image_url", image_url:{url}, frame_type:"first_frame"\|"last_frame" }` |
+| `input_references[]` | array | Reference-to-video (character/style/motion guidance). Each: `{ type:"image_url", image_url:{url} }` or `{ type:"video_url", video_url:{url} }` — same shape as `frame_images` but **no** `frame_type`. If both arrays are present, `frame_images` wins |
+| `callback_url` | string | HTTPS webhook instead of polling |
+
+**Validate params first** — fetch the model's capabilities and only send values from the returned sets (an out-of-set value returns 400):
+
+```bash
+curl -sS https://openrouter.ai/api/v1/videos/models \
+  | jq '.data[] | select(.id == "bytedance/seedance-2.0")'
+```
+
+**1. Submit** → returns `{ id, polling_url, status: "pending" }`:
+
+```bash
+curl -X POST "https://openrouter.ai/api/v1/videos" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "bytedance/seedance-2.0",
+    "prompt": "PROMPT",
+    "duration": 5,
+    "resolution": "720p",
+    "aspect_ratio": "16:9",
+    "frame_images": [
+      { "type": "image_url", "image_url": { "url": "first frame image url" }, "frame_type": "first_frame" },
+      { "type": "image_url", "image_url": { "url": "last frame image url (optional)" }, "frame_type": "last_frame" }
+    ],
+    "input_references": [
+      { "type": "image_url", "image_url": { "url": "character sheet image url" } },
+      { "type": "image_url", "image_url": { "url": "environment/character reference image url" } },
+      { "type": "video_url", "video_url": { "url": "reference input video url" } }
+    ]
+  }'
+```
+
+**2. Poll** `GET <polling_url>` every ~30s until `status` is `completed` (terminal failures: `failed`, `cancelled`, `expired` — surface the `error` field):
+
+```bash
+curl -sS "$POLLING_URL" -H "Authorization: Bearer $OPENROUTER_API_KEY" | jq '.status, .error'
+```
+
+**3. Download** the finished MP4 (auth header required):
+
+```bash
+curl -sS -L "$(curl -sS "$POLLING_URL" -H "Authorization: Bearer $OPENROUTER_API_KEY" | jq -r '.unsigned_urls[0]')" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" --output seedance.mp4
+```
+
+**Usage tips for Seedance via OpenRouter:**
+- Image/video `url` can be a public `https://` URL or a local-file data URL (`data:image/png;base64,<...>`). Upload assets to Higgsfield first and pass their image/video URLs as input.
+- Use `frame_images` (first/last frame) for image-to-video; use `input_references` for character/environment style guidance.
+- Keep the same prompt structure and sound-design rules as the Higgsfield path; OpenRouter only changes the transport, not the prompt craft.
+
+**Recommended ref stack (OpenRouter equivalent of the Higgsfield CLI stack):**
+1. `frame_images` with `frame_type:"first_frame"` -- approved still from the image batch (Higgsfield `--start-image`)
+2. `input_references` image -- character sheet, mandatory minimum for identity (Higgsfield `--image <char-sheet-uuid>`); add more `input_references` images for environment/character references as needed, no hard limit
+3. `input_references` video -- reference video if exists (Higgsfield `--video <reference-video-uuid>`)
+4. *(optional)* `frame_images` with `frame_type:"last_frame"` -- closing frame for a transition (Higgsfield `--end-image`)
+
 ---
 ## Prompt workflow
 
