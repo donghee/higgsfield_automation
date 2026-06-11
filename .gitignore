@@ -3,7 +3,7 @@
 *.png
 *.mp4
 *.xlsx
-Descriptions.md
+descriptions.md
 handoff*.md
 !handoff.template.md
 prompt-log.md

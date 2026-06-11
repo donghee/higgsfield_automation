@@ -9,8 +9,8 @@
 
 Reference data lives in:
 - `ref-ids.md` — all uploaded asset UUIDs
-- `models/Descriptions.md` — model identity and outfit specs
-- `environments/Descriptions.md` — environment descriptions
+- `models/description.md` — model identity and outfit specs
+- `environments/description.md` — environment descriptions
 - `seedance-prompt-framework.md` — prompt structure, model params, sound design rules
 
 ---
@@ -20,13 +20,13 @@ Reference data lives in:
 ### 1. Create Model Descriptions
 - Follow `models/CLAUDE.md`
 - Generate character sheets (`model-*-char-sheet.png`) and close-up shots (`model-*-detail-*.png`) with Nano Banana Pro
-- Upload all model images to Higgsfield, then write `models/Descriptions.md` (one `## Model N` section each)
+- Upload all model images to Higgsfield, then write `models/description.md` (one `## Model N` section each)
 - Paste uploaded UUIDs and URLs into `ref-ids.md`
 
 ### 2. Create Environment Descriptions
 - Follow `environments/CLAUDE.md`
 - Upload every environment image to Higgsfield and analyze each in detail
-- Write `environments/Descriptions.md` (one `## FILENAME -- TITLE` section each, covering texture, lighting, atmosphere, scale, best-for scenes)
+- Write `environments/description.md` (one `## FILENAME -- TITLE` section each, covering texture, lighting, atmosphere, scale, best-for scenes)
 - Paste uploaded UUIDs and URLs into `ref-ids.md`
 
 ### 3. Create handoff.md

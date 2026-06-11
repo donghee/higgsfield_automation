@@ -9,8 +9,8 @@ Use Higgsfield's **Nano Banana Pro** model for generating Character Sheets and C
 1. **Generate Character Sheet** → Create a character sheet based on model images. Ensure all angles/directions of the character are visible in the sheet. Save as `model-*-char-sheet.png` 
 2. **Generate Close-up Shots** → Create detail close-up shots. Save as `model-*-detail-*.png`
 3. **Upload Images** → Upload character sheets, close-up shots, and model images to Higgsfield
-4. **Write Descriptions** → Follow `Descriptions.template.md` to create `Descriptions.md`. Add `## Model *` sections per model. All in English.
-5. **Write ref-ids.md** → If you do upload Charactor refs, paste the UUID and URL into `../ref-ids.md` and write a matching text description in `Descriptions.md'.
+4. **Write Descriptions** → Follow `descriptions.template.md` to create `description.md`. Add `## Model *` sections per model. All in English.
+5. **Write ref-ids.md** → If you do upload Charactor refs, paste the UUID and URL into `../ref-ids.md` and write a matching text description in `description.md'.
 
 ## Per-Model Section Content
 
@@ -21,7 +21,7 @@ Use Higgsfield's **Nano Banana Pro** model for generating Character Sheets and C
 
 ## Template Reference
 
-From `Descriptions.template.md`:
+From `descriptions.template.md`:
 
 | Item | Format |
 |------|--------|

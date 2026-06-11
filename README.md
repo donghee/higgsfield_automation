@@ -22,15 +22,15 @@ npx skills add higgsfield-ai/skills --agent claude-code -a opencode -g --copy -y
 ## 참고 파일
 
 - `ref-ids.md` — 업로드한 모든 에셋 UUID
-- `models/Descriptions.md` — 모델 정체성 및 의상 사양
-- `environments/Descriptions.md` — 환경 설명
+- `models/description.md` — 모델 정체성 및 의상 사양
+- `environments/description.md` — 환경 설명
 - `seedance-prompt-framework.md` — 프롬프트 구조, 모델 파라미터, 사운드 디자인 규칙
 - `CLAUDE.md` — 에이전트 작업 지침
 
 ## 워크플로우
 
-1. **모델 만들기** — `models/CLAUDE.md`를 따라 캐릭터 시트·클로즈업 생성, Higgsfield 업로드 후 `models/Descriptions.md` 작성
-2. **환경 만들기** — `environments/CLAUDE.md`를 따라 환경 이미지 업로드·분석 후 `environments/Descriptions.md` 작성
+1. **모델 만들기** — `models/CLAUDE.md`를 따라 캐릭터 시트·클로즈업 생성, Higgsfield 업로드 후 `models/description.md` 작성
+2. **환경 만들기** — `environments/CLAUDE.md`를 따라 환경 이미지 업로드·분석 후 `environments/description.md` 작성
 3. **handoff 만들기** — `handoff.template.md`를 참고해 프로젝트 정보·레퍼런스 UUID·레퍼런스 스택을 채워 `handoff.md` 생성
 4. **영상 생성** — `handoff.md`와 `seedance-prompt-framework.md`를 따라 Seedance로 영상 생성 (모든 잡에 캐릭터 시트 UUID를 `--image`로 전달)
 5. **프롬프트 로깅** — 모든 이미지/영상 프롬프트를 `prompt-log.md`에 기록, Seedance 실패는 `seedance-failure-log.md`에 별도 기록
