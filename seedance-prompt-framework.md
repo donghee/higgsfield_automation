@@ -226,8 +226,8 @@ Each flag accepts either a local file path (auto-uploaded) or a UUID (upload id 
 
 | Model | Character Sheet UUID |
 |-------|----------------------|
-| Model 1 | `` |
-| Model 2 | `` |
+| Model 1 |  |
+| Model 2 |  |
 
 
 Recommended ref stack per generation:

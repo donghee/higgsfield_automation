@@ -36,9 +36,9 @@ Reference data lives in:
 
 ### 4. Generate video
 - Read `handoff.md` for scene briefs and ref stacks
-- Follow prompt structure in `seedance-prompt-framework.md`
-- **Always** pass `--image <char-sheet-uuid>` as minimum model ref on every Seedance job
-- Character sheet UUID for Model 1 (Doodoong): `522d8454-047b-4acc-8002-d93eb7407a12`
+- Follow the prompt structure and ref-stack rules in `seedance-prompt-framework.md`
+- **Always** pass the character sheet UUID as the minimum model ref on every Seedance job (`--image <char-sheet-uuid>`)
+- Save all generated videos to the `outputs/` directory
 
 ### 5. Log prompts
 - Append every image/video prompt (with job ID and output URL) to `prompt-log.md`
