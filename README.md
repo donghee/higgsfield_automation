@@ -32,9 +32,10 @@ npx skills add higgsfield-ai/skills --agent claude-code -a opencode -g --copy -y
 1. **모델 만들기** — `models/CLAUDE.md`를 따라 캐릭터 시트·클로즈업 생성, Higgsfield 업로드 후 `models/description.md` 작성
 2. **환경 만들기** — `environments/CLAUDE.md`를 따라 환경 이미지 업로드·분석 후 `environments/description.md` 작성
 3. **handoff 만들기** — `handoff.template.md`를 참고해 프로젝트 정보·레퍼런스 UUID·레퍼런스 스택을 채워 `handoff.md` 생성
-4. **영상 생성** — `handoff.md`와 `seedance-prompt-framework.md`를 따라 Seedance로 영상 생성 (모든 잡에 캐릭터 시트 UUID를 `--image`로 전달)
-5. **프롬프트 로깅** — 모든 이미지/영상 프롬프트를 `prompt-log.md`에 기록, Seedance 실패는 `seedance-failure-log.md`에 별도 기록
-6. **피드백 트래커** — `feedback-tracker.xlsx`(Guide·Images·Videos 3개 시트)에 생성 결과를 기록하고, 생성 전 검토해 승인/거절 방향을 학습
+4. **스토리보드 시트 만들기** — `storyboard/CLAUDE.md`를 따라 9프레임(3×3) 스토리보드 시트(`storyboard-*-sheet.png`)를 생성·Higgsfield 업로드, 생성 내역을 `storyboard/storyboard-log.md`에 누적 기록하고 승인된 시트 UUID를 `ref-ids.md`에 기록
+5. **영상 생성** — 승인된 스토리보드 시트를 기준으로 Seedance 영상 생성. 모든 잡에 **스토리보드 시트 UUID**(구도·연속성)와 **캐릭터 시트 UUID**(정체성)를 `--image`로 전달하고, 특정 프레임 샷은 해당 스틸을 시작 프레임으로 추가. 결과물은 `outputs/`에 저장
+6. **프롬프트 로깅** — 모든 이미지/영상 프롬프트를 `prompt-log.md`에 기록, Seedance 실패는 `seedance-failure-log.md`에 별도 기록
+7. **피드백 트래커** — `feedback-tracker.xlsx`(Guide·Images·Videos 3개 시트)에 생성 결과를 기록하고, 생성 전 검토해 승인/거절 방향을 학습
 
 ## 주요 규칙
 

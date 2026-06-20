@@ -57,6 +57,12 @@
 | `mode` | `std` `fast` | `std` | `fast` = quick preview; `std` = final quality |
 | `medias` | array | — | `--start-image` sets first frame; `--end-image` sets last frame; `--image` for character/env refs; `--video` for reference video; `--audio` for lipsync/soundtrack |
 
+**Generation modes:**
+- **Multimodal reference-based (new):** images (0–9) + videos (0–3) + audio (0–3) + optional text prompt → 1 video. Audio alone is not allowed — at least 1 reference image or video is required. Supports generating, editing, and extending videos.
+- **Image to video (first + last frame):** first frame image + last frame image + optional text → 1 video.
+- **Image to video (first frame):** first frame image + optional text → 1 video.
+- **Text to video:** text prompt only → 1 video.
+
 
 ### Seedance 2.0 in OpenRouter (`bytedance/seedance-2.0`)
 
@@ -149,6 +155,7 @@ generic prompts, With it, the prompt is tuned to the specific project
 For this project that context lives in:
 - `models/Description.md` -- model identity and outfit specs
 - `environment/Description.md` -- environment descriptions
+- `storyboard/storyboard-log.md` -- storyboard descriptions
 - `ref-ids.md` --  all uploaded image UUIDs
 - `seedance-prompt-framework.md` -- this file
 
@@ -210,17 +217,19 @@ When a beat could go three ways, ask Claude for three versions of the same promp
 
 ## Media flags for Seedance 2
 
-| Flag | Use |
-|-----|-----|
-| `--image` | Environment/character references – pass as many as needed, no hard limit |
-| `--start-image` | First frame = use the approved still from the image batch |
-| `--end-image` | Last frame for a transition – sets the closing frame of the clip |
-| `--video` | Reference video for motion/style guidance – pass as many as needed, no hard limit |
-| `--audio` | Reference audio (lipsync / soundtrack match). Use this, NOT `--generate-audio` |
+| Flag | Count | Use |
+|-----|-----|-----|
+| `--image` | 0–9 | Storyboard / environment / character reference images |
+| `--start-image` | 0–1 | First frame – the approved still from the image batch |
+| `--end-image` | 0–1 | Last frame – sets the closing frame for a transition |
+| `--video` | 0–3 | Reference video for motion / style guidance |
+| `--audio` | 0–3 | Reference audio (lipsync / soundtrack match). Use this, NOT `--generate-audio` |
 
 Each flag accepts either a local file path (auto-uploaded) or a UUID (upload id or a previous job id).
 
 **Important:** Use generated environment shots of the model as `--image` refs, not clean studio shots. Studio backgrounds bleed into the environment mid-clip.
+
+**Storyboard sheet rule:** ALWAYS pass the storyboard sheet UUID as a minimum `--image` ref on every Seedance generation. This is non-negotiable for identity consistency
 
 **Character sheet rule:** ALWAYS pass the model's character sheet UUID as a minimum `--image` ref on every Seedance generation. This is non-negotiable for identity consistency
 
@@ -232,5 +241,6 @@ Each flag accepts either a local file path (auto-uploaded) or a UUID (upload id 
 
 Recommended ref stack per generation:
 1. `--start-image` -- approved still from the image batch (sets first frame)
+2. `--image <storyboard-sheet-uuid>` -- storyboard sheet (mandatory minimum)
 2. `--image <char-sheet-uuid>` -- character sheet (mandatory minimum)
 3. `--video <reference-video-uuid>` -- reference video if exist

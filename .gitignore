@@ -8,3 +8,4 @@ handoff*.md
 !handoff.template.md
 prompt-log.md
 ref-ids.md
+.env

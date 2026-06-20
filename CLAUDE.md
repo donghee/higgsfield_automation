@@ -34,17 +34,25 @@ Reference data lives in:
 - Fill in project title, model descriptions, reference UUIDs, and ref stacks
 - Save as `handoff.md`
 
-### 4. Generate video
+### 4. Create Storyboard sheet
 - Read `handoff.md` for scene briefs and ref stacks
-- Follow the prompt structure and ref-stack rules in `seedance-prompt-framework.md`
-- **Always** pass the character sheet UUID as the minimum model ref on every Seedance job (`--image <char-sheet-uuid>`)
+- Follow `storyboard/CLAUDE.md`
+- Generate storyboard sheet (`storyboard-*-sheet.png`) and Upload storyboard sheet images to Higgsfield
+- **Append** all generation details (prompt, job ID, URL, UUID, version notes) to `storyboard/storyboard-log.md` — this file is the cumulative archive; every new storyboard version gets appended, never overwritten
+- Paste uploaded UUIDs and URLs into `ref-ids.md`
+
+### 5. Generate video
+- Drive every Seedance job from the **approved storyboard sheet** built in step 4 — it is the visual blueprint for the shot, not an optional reference
+- Read `handoff.md` for the scene brief and `seedance-prompt-framework.md` for prompt structure and ref-stack rules
+- **Mandatory minimum refs on every Seedance job:** the approved **storyboard sheet UUID** and the **character sheet UUID** (`--image <storyboard-sheet-uuid> --image <char-sheet-uuid>`) — the storyboard sheet anchors composition/continuity, the char sheet anchors identity
+- For a shot boarded as a specific frame, also pass that frame's **finalized standalone still** (storyboard STEP 5) as the start frame: image UUIDs via `--image`, video UUIDs via `--video` (pull both from `ref-ids.md`)
 - Save all generated videos to the `outputs/` directory
 
-### 5. Log prompts
+### 6. Log prompts
 - Append every image/video prompt (with job ID and output URL) to `prompt-log.md`
 - Log Seedance failures separately in `seedance-failure-log.md`
 
-### 6. Feedback Tracker
+### 7. Feedback Tracker
 
 Maintain a single Excel file (`feedback-tracker.xlsx`) with three sheets.
 
