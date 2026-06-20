@@ -187,7 +187,13 @@ CUT N+1:  --start-image B  --end-image C   ← B를 공유
 ### 5단계 — 핸즈온: 두둥·둥실 동네 산책
 
 실제 프로젝트 파일을 참고해서 처음부터 끝까지 따라합니다.  
-예제: **"동네 한 바퀴 (Neighborhood Rovers)"** — 두둥(회색 영국 고양이)과 둥실(생강색 동생)이 동네를 모험하는 2D 애니메이션 단편.
+예제: **"동네 한 바퀴 (Neighborhood Rovers)"** — 두둥(회색 고양이)과 둥실(노란색 고양이)이 동네를 모험하는 2D 애니메이션 단편.
+
+> **레퍼런스 에셋 (GitHub에서 열람 가능):**
+> - [두둥 캐릭터 시트](docs/model-1-char-sheet-for-animation.png)
+> - [둥실 캐릭터 시트](docs/model-4-char-sheet-for-animation.png)
+> - [스토리보드 시트](docs/storyboard-nr-rovers-sheet.png)
+> - [최종 합성 영상](docs/nr-or-composite.mp4)
 
 #### 1. 디렉터리 구조
 

@@ -10,3 +10,5 @@ prompt-log.md
 ref-ids.md
 .env
 node_modules/
+!docs/*.mp4
+!docs/*.png
