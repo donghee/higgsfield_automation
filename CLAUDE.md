@@ -38,15 +38,18 @@ Reference data lives in:
 - Read `handoff.md` for scene briefs and ref stacks
 - Follow `storyboard/CLAUDE.md`
 - Generate storyboard sheet (`storyboard-*-sheet.png`) and Upload storyboard sheet images to Higgsfield
-- **Append** all generation details (prompt, job ID, URL, UUID, version notes) to `storyboard/storyboard-log.md` — this file is the cumulative archive; every new storyboard version gets appended, never overwritten
+- **Append** all generation details (prompt, job ID, URL, UUID, version notes, storyboard sheet) to `storyboard/storyboard-log.md` — this file is the cumulative archive; every new storyboard version gets appended, never overwritten
 - Paste uploaded UUIDs and URLs into `ref-ids.md`
 
 ### 5. Generate video
-- Drive every Seedance job from the **approved storyboard sheet** built in step 4 — it is the visual blueprint for the shot, not an optional reference
+- Drive every Seedance job from the **approved storyboard sheet** built in step 4 — it is the shot's visual blueprint, not an optional reference.
+- Name the **storyboard sheet UUID** in the prompt text to generate the video *from that storyboard sheet* — never attach it silently.
 - Read `handoff.md` for the scene brief and `seedance-prompt-framework.md` for prompt structure and ref-stack rules
-- **Mandatory minimum refs on every Seedance job:** the approved **storyboard sheet UUID** and the **character sheet UUID** (`--image <storyboard-sheet-uuid> --image <char-sheet-uuid>`) — the storyboard sheet anchors composition/continuity, the char sheet anchors identity
-- For a shot boarded as a specific frame, also pass that frame's **finalized standalone still** (storyboard STEP 5) as the start frame: image UUIDs via `--image`, video UUIDs via `--video` (pull both from `ref-ids.md`)
-- Save all generated videos to the `outputs/` directory
+- **Mandatory minimum refs on every Seedance job:** the approved **storyboard sheet UUID** and the **character sheet UUID** (`--image <storyboard-sheet-uuid> --image <char-sheet-uuid>`) — the storyboard sheet anchors composition/continuity, the char sheet anchors
+- **Single shot:** always pass `--start-image`.
+- **Multishot sequence:** always pass `--start-image` and `--end-image` to keep continuity across cuts.
+- **Boarded-frame shot:** when a shot matches a specific storyboard frame, use that frame's **finalized standalone still** (storyboard STEP 5) as `--start-image` / `--end-image`. Pull additional references from `ref-ids.md` with `--image` and `--video`.
+- Save every generated video to the `outputs/` directory.
 
 ### 6. Log prompts
 - Append every image/video prompt (with job ID and output URL) to `prompt-log.md`

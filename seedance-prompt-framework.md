@@ -240,7 +240,35 @@ Each flag accepts either a local file path (auto-uploaded) or a UUID (upload id 
 
 
 Recommended ref stack per generation:
-1. `--start-image` -- approved still from the image batch (sets first frame)
+1. `--start-image` -- approved still from the image batch (sets first frame) optional
+2. `--end-image` -- approved still from the image batch (sets end frame) optional
 2. `--image <storyboard-sheet-uuid>` -- storyboard sheet (mandatory minimum)
 2. `--image <char-sheet-uuid>` -- character sheet (mandatory minimum)
 3. `--video <reference-video-uuid>` -- reference video if exist
+
+---
+
+## Consistency rules
+
+Rules for keeping character, environment, and tone from drifting across consecutive shots.
+
+### 1. Default to a single shot
+
+- Treat each beat as **one Seedance shot** by default. The more you split a beat into cuts, the higher the risk of consistency breaking.
+- For environment consistency, pass **as many environment images as possible** of the same location as `--image` refs — use generated shots of the model inside that environment, not clean studio shots.
+- Always pass the **storyboard sheet UUID + character sheet UUID** as minimum refs on every shot (identity / composition anchors).
+
+### 2. For multishot sequences
+
+The core principle for holding environment and character consistency when stitching multiple cuts together:
+
+- Make **"the last frame of cut N = the first frame of cut N+1"** a **single shared still**.
+- Pass that still as `--end-image` on cut N and as `--start-image` on cut N+1 (one image shared by two shots).
+- In other words, put **both** `--start-image` and `--end-image` on each Seedance shot so adjacent cuts hold the same boundary frame.
+- This keeps lighting, background, outfit, and pose from breaking at the cut transition and carries them through seamlessly.
+
+### 3. Shared principles
+
+- Use the **finalized standalone still** from storyboard STEP 5 as the boundary-frame still.
+- Always use a **model shot generated in that environment** as the environment ref — clean studio backgrounds bleed into the environment mid-clip.
+- Identity details (outfit, hair, silhouette) are locked to the character sheet, so never drop the char sheet UUID on any shot.

@@ -9,3 +9,4 @@ handoff*.md
 prompt-log.md
 ref-ids.md
 .env
+node_modules/

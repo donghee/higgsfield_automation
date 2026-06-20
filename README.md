@@ -4,26 +4,16 @@ Higgsfield AI로 영상을 자동 생성하는 워크플로우.
 
 - **영상 모델:** Seedance 2.0 (`seedance_2_0`)
 - **이미지 모델:** Nano Banana Pro (`nano_banana_2`, 히어로 이미지) · GPT Image 2 (`gpt_image_2`, 텍스트/디자인)
+- **오파일럿 모델:** Claude opus 4.8 or Deepseek v4 pro
+- **AI 서비스:** higgsfield.ai, claude, openrouter.ai (옵션)
 
-## 설치
-
-```bash
-# Claude Code 설치
-curl -fsSL https://claude.ai/install.sh | bash
-
-# Higgsfield CLI 설치 후 로그인
-curl -fsSL https://raw.githubusercontent.com/higgsfield-ai/cli/main/install.sh | sh
-higgsfield auth login
-
-# Higgsfield Skill 추가
-npx skills add higgsfield-ai/skills --agent claude-code -a opencode -g --copy -y
-```
-
-## 참고 파일
+## 주요 파일
 
 - `ref-ids.md` — 업로드한 모든 에셋 UUID
 - `models/description.md` — 모델 정체성 및 의상 사양
 - `environments/description.md` — 환경 설명
+- `handoff.md` — 프로젝트 브리핑 문서 (콘셉트·캐릭터 설명·레퍼런스 UUID·씬 브리프); 모든 생성 작업의 출발점
+- `storyboard/storyboard-*-sheet-*.png` — 9프레임 3×3 스토리보드 시트; Seedance 영상 생성 시 구도 앵커(`--image`)로 필수 전달
 - `seedance-prompt-framework.md` — 프롬프트 구조, 모델 파라미터, 사운드 디자인 규칙
 - `CLAUDE.md` — 에이전트 작업 지침
 
@@ -37,9 +27,379 @@ npx skills add higgsfield-ai/skills --agent claude-code -a opencode -g --copy -y
 6. **프롬프트 로깅** — 모든 이미지/영상 프롬프트를 `prompt-log.md`에 기록, Seedance 실패는 `seedance-failure-log.md`에 별도 기록
 7. **피드백 트래커** — `feedback-tracker.xlsx`(Guide·Images·Videos 3개 시트)에 생성 결과를 기록하고, 생성 전 검토해 승인/거절 방향을 학습
 
-## 주요 규칙
+---
 
-- 모델 레퍼런스는 캐릭터 시트 UUID 사용 — detail/editorial 이미지는 프레임에 번지므로 금지
-- 사운드 디자인은 물리적이고 구체적으로, 음악 금지. 모든 프롬프트는 **No music.** 으로 종료
-- 해상도: Nano Banana Pro는 항상 `2k`, Seedance는 기본 `720p`
-- 모드: 최종 출력은 `std`, 미리보기/반복은 `fast`
+## Getting Started 튜토리얼
+
+이 섹션은 Higgsfield Automation을 처음 사용하는 분을 위한 단계별 안내입니다.  
+설치부터 영상 생성까지 실제 예제를 따라하면서 전체 파이프라인을 익힐 수 있습니다.
+
+---
+
+### 1단계 — 설치
+
+**Claude Code** (AI 에이전트 CLI)와 **Higgsfield CLI** (영상·이미지 생성 API 클라이언트)를 설치합니다.
+
+```bash
+# 1. Claude Code 설치
+curl -fsSL https://claude.ai/install.sh | bash
+
+# 2. Higgsfield CLI 설치 후 로그인 (계정 필요)
+curl -fsSL https://raw.githubusercontent.com/higgsfield-ai/cli/main/install.sh | sh
+higgsfield auth login
+
+# 3. Higgsfield 스킬 추가 — Claude Code가 Higgsfield API를 직접 호출할 수 있게 됨
+npx skills add vercel-labs/agent-skills
+npx skills add higgsfield-ai/skills --agent claude-code -a opencode -g --copy -y
+npx skills add OpenRouterTeam/skills openrouter-video -a claude-code -a opencode -g --copy -y
+```
+
+설치가 끝나면 프로젝트 디렉터리에서 `claude` 명령어로 대화하면서 모든 생성 작업을 진행할 수 있습니다.
+
+### 2단계 — 서비스 가입 및 API 키 발급
+
+아래 세 가지 서비스에 각각 가입하고 API 키를 발급받습니다.
+
+| 서비스 | 가입 주소 | 필요한 것 | 비고 |
+|--------|-----------|-----------|------|
+| **Higgsfield** | [higgsfield.ai](https://higgsfield.ai) | API 키 | 대시보드 → Settings → API Keys에서 발급 |
+| **Claude** | [claude.ai](https://claude.ai) | 구독 또는 API 키 | Claude Code 사용 시 Pro 구독 권장 |
+| **OpenRouter** | [openrouter.ai](https://openrouter.ai) | API 키 | 대시보드 → Keys에서 발급 (옵션) |
+
+발급받은 키는 각 서비스의 인증 절차에 따라 설정합니다.
+- **Higgsfield:** `higgsfield auth login` 실행 시 브라우저 로그인 또는 API 키 입력
+- **Claude Code:** 최초 실행 시 자동으로 로그인 절차 안내
+- **OpenRouter:** `OPENROUTER_API_KEY` 환경 변수로 설정
+
+---
+
+### 3단계 — 개념 이해
+
+워크플로우를 따라가기 전에 핵심 개념 7가지를 파악합니다.
+
+#### UUID
+
+Higgsfield에 이미지나 영상을 업로드하면 **UUID**(고유 식별자)가 발급됩니다.
+
+```
+522d8454-047b-4acc-8002-d93eb7407a12   ← 이 형식
+```
+
+이 UUID가 모든 생성 명령의 레퍼런스로 쓰입니다. 업로드한 모든 에셋의 UUID는 `ref-ids.md`에 기록합니다. UUID를 잃어버리면 동일 레퍼런스를 다시 쓸 수 없으므로 반드시 기록해 두어야 합니다.
+
+#### 스킬 (Skill)
+
+Claude Code에 추가된 **도구 모음**입니다. `higgsfield-generate` 스킬이 설치되면 Claude에게 말로 지시하는 것만으로 이미지 생성·업로드·UUID 조회가 가능해집니다.
+
+```
+"두둥이 캐릭터 시트 생성해줘" → Claude가 스킬을 호출 → Nano Banana Pro API 실행 → 결과 이미지 저장 + UUID 기록
+```
+
+#### 사용하는 모델
+
+| 용도 | 모델 ID | 특징 |
+|------|---------|------|
+| 캐릭터·환경 이미지 (최종) | `nano_banana_2` (Nano Banana Pro) | 2k, 영화 느낌, 텍스처 풍부 |
+| 이미지 빠른 반복 | `nano_banana_flash` (Nano Banana 2) | 저렴·빠름, 구도 탐색용 |
+| 텍스트·디자인 이미지 | `gpt_image_2` (GPT Image 2) | 문자 렌더링에 강함 |
+| 영상 생성 | `seedance_2_0` (Seedance 2.0) | 시작/끝 프레임 제어, 장르 지원 |
+
+
+#### 영상 용어
+
+Seedance 2.0 영상 생성에 쓰이는 주요 플래그입니다.
+
+| 플래그 | 역할 |
+|--------|------|
+| `--start-image <uuid>` | 영상의 **첫 프레임**을 고정 |
+| `--end-image <uuid>` | 영상의 **마지막 프레임**을 고정 |
+| `--image <uuid>` | 캐릭터·환경 레퍼런스 (0–9개) |
+| `--video <uuid>` | 동작·스타일 레퍼런스 영상 (0–3개) |
+
+컷과 컷을 이어 붙일 때는 **앞 컷의 `--end-image`와 뒤 컷의 `--start-image`에 같은 프레임을 공유**하면 장면 전환이 자연스럽게 이어집니다.
+
+#### 캐릭터 시트 (Character Sheet)
+
+캐릭터의 **일관성 유지** 를 위한 이미지입니다. 여러 각도와 표정을 담은 레퍼런스 시트로, 모든 Seedance 잡에 `--image <char-sheet-uuid>`로 반드시 포함해야 합니다. 이것을 빠뜨리면 컷마다 캐릭터의 얼굴·체형·색상이 달라집니다.
+
+> 클로즈업이나 편집용 사진(detail/editorial)은 레퍼런스로 쓰지 않습니다. Seedance가 그것을 프레임 그대로 복사해 넣기 때문입니다.
+
+#### 핸드오프 (handoff.md)
+
+**프로젝트 브리핑 문서**입니다. 영상의 콘셉트·캐릭터 설명·레퍼런스 UUID·씬 요약이 한 파일에 담겨 있으며, Claude가 모든 생성 작업을 시작할 때 이 파일을 가장 먼저 읽습니다.
+
+```
+handoff.md 구조
+├── Project Overview  — 콘셉트 및 포맷
+├── Models            — 각 캐릭터 외형·성격·역할 설명
+├── Reference UUIDs   — 업로드된 에셋 UUID 표
+├── Ref Stacks        — 각 컷에 쓸 --image 플래그 복붙용 블록
+└── Scene Briefs      — 컷별 카메라 움직임·감정 흐름 요약
+```
+
+#### 스토리보드 (Storyboard)
+
+영상을 만들기 전에 생성하는 **9프레임 3×3 그리드 이미지**입니다. 컷의 구도·조명·감정 흐름을 한눈에 확인하고, Seedance 영상 생성 때 구도 앵커(`--image <storyboard-sheet-uuid>`)로 반드시 사용합니다.
+
+```
+[1 장면 설정]  [2 인물 등장]  [3 행동 시작]
+[4 위기/전환]  [5 핵심 장면]  [6 대조/반응]
+[7 회복]       [8 클라이맥스] [9 해소/마무리]
+```
+
+탐색 단계는 `nano_banana_flash`(저렴), 승인 후 최종본은 `nano_banana_2`(Pro)로 다시 랜더링 합니다.
+
+---
+
+### 4단계 — 알아두어야 할 문제점
+
+#### 일관성 문제 (Consistency)
+
+컷마다 같은 캐릭터라도 털 색상, 체형, 얼굴이 미묘하게 달라질 수 있습니다.
+
+**이 파이프라인의 해법:**
+
+1. **캐릭터 시트 UUID**를 모든 잡에 `--image`로 전달 — 캐릭터 일관성 유지
+2. **스토리보드 시트 UUID**를 모든 잡에 `--image`로 전달 — 구도·조명·연속성 일관성 유지
+3. **공유 경계 프레임** — 앞 컷의 `--end-image`와 뒤 컷의 `--start-image`를 동일 이미지로 고정
+
+```
+CUT N:    --start-image A  --end-image B
+CUT N+1:  --start-image B  --end-image C   ← B를 공유
+```
+
+#### 토큰 비용 (Token Cost)
+
+영상 생성은 비용이 많이 든다. 일관성 문제 때문에 영상 생성을 더 여러번 하게 됨
+
+| 작업 | 비용 수준 | 절약 팁 |
+|------|-----------|---------|
+| Nano Banana Flash (탐색) | 저렴 | 구도 확인은 항상 Flash로 |
+| Nano Banana Pro (최종) | 중간 | 승인된 시트만 Pro 재렌더 |
+| Seedance `fast` (미리보기) | 중간 | 방향 확인은 fast 모드 |
+| Seedance `std` (최종 720p) | 높음 | 확정된 컷에만 사용 |
+| Seedance `std` (1080p) | 매우 높음 | 최종 납품 외엔 불필요 |
+
+**절약 팁:** handoff 문서와 스토리 보드에 생성할 영상 내용을 계획. 프롬프트 기록을 남겨서, 다음 영상 생성시 프롬프트 기록보고 개선하도록 함.
+
+---
+
+### 5단계 — 핸즈온: 두둥·둥실 동네 산책
+
+실제 프로젝트 파일을 참고해서 처음부터 끝까지 따라합니다.  
+예제: **"동네 한 바퀴 (Neighborhood Rovers)"** — 두둥(회색 영국 고양이)과 둥실(생강색 동생)이 동네를 모험하는 2D 애니메이션 단편.
+
+#### 1. 디렉터리 구조
+
+```
+higgsfield_automation/
+│
+├── models/                          # 캐릭터 관련 파일
+│   ├── CLAUDE.md                    # 캐릭터 생성 에이전트 지침
+│   ├── descriptions.template.md     # descriptions.md 작성 양식
+│   ├── descriptions.md              # 캐릭터별 외형·레퍼런스 UUID 기록
+│   ├── model-1-char-sheet.png       # 캐릭터 시트 (정체성 앵커)
+│   ├── model-1-detail-*.png         # 캐릭터 클로즈업 (레퍼런스 금지)
+│   └── ...                          # 기타 캐릭터 사진·영상
+│
+├── environments/                    # 배경 환경 관련 파일
+│   ├── CLAUDE.md                    # 환경 생성 에이전트 지침
+│   ├── descriptions.template.md     # descriptions.md 작성 양식
+│   ├── descriptions.md              # 환경별 조명·분위기·UUID 기록
+│   └── *.jpg                        # 기타 환경 사진
+│
+├── storyboard/                      # 스토리보드 관련 파일
+│   ├── CLAUDE.md                    # 스토리보드 생성 에이전트 지침
+│   ├── storyboard-log.md            # 누적 스토리보드 기록 (덮어쓰기 금지)
+│   ├── storyboard-*-sheet.png       # 생성된 스토리 보드 
+│   └── keyframes/                   # 확정된 시작·끝 프레임 스틸
+│
+├── outputs/                         # 생성된 영상 저장소
+│   └── *.mp4                        # 생성된 영상
+│
+├── CLAUDE.md                        # 전체 워크플로우 에이전트 지침
+├── handoff.template.md              # handoff.md 작성 양식
+├── handoff.md                       # 현재 활성 프로젝트 브리핑
+├── ref-ids.md                       # 모든 업로드 에셋 UUID 목록
+├── seedance-prompt-framework.md     # 프롬프트 구조·모델 파라미터 가이드
+├── prompt-log.md                    # 생성 프롬프트 누적 기록
+└── feedback-tracker.xlsx            # 이미지·영상 승인/거절 트래커
+```
+
+#### 2. 주요 파일 설명
+
+**`CLAUDE.md`** — 에이전트의 작업 지침서입니다. Claude가 프로젝트 디렉터리에서 실행될 때 가장 먼저 읽는 파일로, 전체 7단계 워크플로우와 핵심 규칙이 담겨 있습니다. 프로젝트를 새로 만들 때 이 파일부터 작성합니다. `models/CLAUDE.md`, `environments/CLAUDE.md`, `storyboard/CLAUDE.md`도 각 단계의 세부 지침을 담고 있습니다.
+
+**`handoff.template.md`** — handoff 문서의 **빈 양식**입니다. 새 에피소드를 시작할 때 이 파일을 복사해서 `handoff.<이름>.md`로 저장하고, 프로젝트 개요·캐릭터 설명·레퍼런스 UUID·씬 브리프를 채워 넣습니다.
+
+```markdown
+# Title                     ← 에피소드 제목
+
+## Project Overview         ← 콘셉트·포맷·분위기
+
+## Models
+### Model 1 (M1)
+**Model Description**: ...  ← 외형·성격·역할
+
+## Reference Image UUIDs
+| File | UUID |            ← 캐릭터 시트·환경 UUID 표
+...
+
+## Ref Stacks               ← 컷별 --image 플래그 복붙 블록
+### CUT 1 — ...
+--image <char-sheet-uuid>
+--image <env-uuid>
+
+## Scene Briefs             ← 컷별 카메라·감정 한줄 요약
+```
+
+**`models/descriptions.template.md`** (및 `environments/descriptions.template.md`) — 캐릭터·환경 설명 문서의 **빈 양식**입니다. Higgsfield에 이미지를 업로드한 뒤, 이 양식을 따라 외형 묘사와 UUID를 기록하면 Claude가 나중에 프롬프트를 쓸 때 참조합니다.
+
+```markdown
+## Model N
+
+**Subject:** 두둥, 회색 영국 숏헤어 고양이
+
+**Model description:** 뚱뚱하고 무뚝뚝한 고양이 ...
+
+**Image References:**
+- model-1-char-sheet.png -> 522d8454-047b-4acc-...
+- model-1-detail-1.png   -> (레퍼런스로 쓰지 않음)
+```
+
+---
+
+#### 3. handoff 읽기
+
+`handoff.rovers.md`가 이 에피소드의 브리핑 파일입니다.
+
+```bash
+# Claude에게 지시
+"handoff.rovers.md 읽고 동네 한 바퀴 에피소드 캐릭터와 씬 구조를 요약해줘"
+```
+
+Claude가 읽어오는 핵심 정보:
+
+- **두둥 (M1):** 뚱뚱한 회색 영국 숏헤어, 점잖고 무뚝뚝, UUID `95366446`
+- **둥실 (M4):** 생강색 쇼트컷 고양이, 활달하고 탄력적, UUID `3c64a938`
+- **씬:** 골목 → 벽 도약 → 두둥 배 걸림 개그 → 회복 → 옥상 행진 → 해소
+
+#### 4. 스토리보드 생성
+
+```bash
+# Claude에게 지시
+"handoff.md 기반으로 동네 한 바퀴 스토리보드 시트 만들어줘.
+storyboard/CLAUDE.md 따라서 9프레임 3×3 그리드로."
+```
+
+Claude가 자동으로 수행하는 것:
+1. `handoff.rovers.md`에서 씬 브리프 읽기
+2. `ref-ids.md`에서 캐릭터 시트·환경 UUID 조회
+3. Nano Banana Flash로 탐색 버전 생성
+4. `storyboard/storyboard-log.md`에 기록
+
+생성된 스토리보드 예시 (`storyboard/storyboard-nr-rovers-sheet.png`):
+
+```
+[1 골목 트롯]          [2 벽 앞 도약 준비]    [3 두둥 공중 도약]
+[4 배 걸림 개그]       [5 버둥버둥 올라가기]  [6 둥실 사뿐 착지]
+[7 ledge 위 행진]      [8 옥상 조망 포즈]     [9 황금빛 오후 퇴장]
+```
+
+방향이 맞으면 승인, 수정이 필요하면:
+
+```bash
+"3번 프레임 두둥 배가 더 확실히 걸려 있어야 해. 더 코믹하게 다시 생성해줘"
+```
+
+승인 후 Nano Banana Pro로 최종 시트 재렌더:
+
+```bash
+"승인. Nano Banana Pro로 최종 시트 렌더해줘"
+# → storyboard-nr-rovers-sheet-final.png 생성
+# → Higgsfield 업로드 → UUID c3e30b4a-... 발급
+# → ref-ids.md에 자동 기록
+```
+
+#### 5. 키프레임 확정
+
+영상 한 컷마다 시작·끝 프레임을 확정합니다.
+
+```bash
+"NR 3컷 구성으로 키프레임 생성해줘.
+CUT1: 프레임 1→3 (접근+도약)
+CUT2: 프레임 4→6 (개그)
+CUT3: 프레임 7→9 (회복+해소)"
+```
+
+Claude가 생성하는 파일:
+
+```
+storyboard/keyframes/
+├── nr-or-start-frame.png        (CUT1 시작, UUID: 034f7be4)
+├── nr-or-frame-03.png           (CUT1 끝 / CUT4 시작, UUID: 0ea80a45)
+├── nr-or-comedy-frame.png       (CUT2 시작, UUID: f59a6a91)
+├── nr-or-frame-06.png           (CUT2 끝, UUID: 5105fb5d)
+├── nr-or-frame-07.png           (CUT3 시작, UUID: 83d4ab5c)
+└── nr-or-end-frame.png          (CUT3 끝, UUID: 566dd444)
+```
+
+#### 6. 영상 생성
+
+```bash
+"NR CUT1 영상 생성해줘.
+2D 애니메이션 스타일, 6초, 720p, 코미디 장르.
+두둥·둥실이 햇살 드는 골목을 트롯으로 내려와 벽으로 향한다."
+```
+
+Claude가 구성하는 Seedance 명령:
+
+```bash
+higgsfield generate seedance_2_0 \
+  --prompt "Two cartoon cats trot side by side down a sunny brick lane toward a low garden wall...No music." \
+  --duration 6 \
+  --resolution 720p \
+  --genre comedy \
+  --start-image 034f7be4 \       # CUT1 시작 프레임
+  --end-image 0ea80a45 \         # CUT1 끝 프레임
+  --image c3e30b4a \             # 스토리보드 시트 (필수)
+  --image 95366446 \             # 두둥 캐릭터 시트 (필수)
+  --image 3c64a938               # 둥실 캐릭터 시트 (필수)
+```
+
+같은 방식으로 CUT2, CUT3, CUT4(도약→개그 이어붙이기)를 생성한 뒤 ffmpeg으로 합칩니다.
+
+실제 생성된 결과물 (이 프로젝트에서 확인 가능):
+
+```
+outputs/
+├── nr-or-cut1-approach.mp4    (6s, 접근+도약)
+├── nr-or-cut2-comedy.mp4      (7s, 개그)
+├── nr-or-cut3-resolution.mp4  (7s, 회복+해소)
+├── nr-or-cut4-leap-gag.mp4    (15s, 도약→배걸림 연결)
+└── nr-or-full.mp4             (35s, 최종 합본)
+```
+
+총 비용: 약 $5.29 (4개 컷, 35초 분량)
+
+---
+
+### FAQ
+
+**Q. UUID를 잃어버렸어요.**  
+`ref-ids.md`를 확인하세요. 모든 업로드 UUID가 여기 기록됩니다. 없다면 Higgsfield 웹 대시보드에서 해당 에셋을 찾아 UUID를 복사합니다.
+
+**Q. 영상마다 캐릭터 얼굴이 달라요.**  
+캐릭터 시트 UUID를 `--image`로 빠뜨렸거나, 클로즈업·편집 이미지를 레퍼런스로 쓴 경우입니다. 반드시 `char-sheet` 이미지만 사용하고, 스토리보드 시트도 함께 전달하세요.
+
+**Q. 스토리보드가 마음에 들지 않아요.**  
+`"다시 생성해줘"`라고 말하면 Claude가 동일 레퍼런스로 재생성합니다. Flash 모드라 비용이 저렴합니다. 방향 조정이 필요하면 구체적으로 설명하세요: `"3번 프레임 카메라를 더 낮게, 개그가 더 강조되게"`.
+
+**Q. 컷 이음새에서 배경이 갑자기 바뀌어요.**  
+공유 경계 프레임을 확인하세요. 앞 컷의 `--end-image`와 뒤 컷의 `--start-image`가 동일한 UUID를 가리켜야 합니다.
+
+**Q. Seedance job 이 실패했어요.**  
+`seedance-failure-log.md`에 기록하고, 에러 메시지를 확인합니다. 흔한 원인은 UUID가 유효하지 않거나, duration이 지원 범위(4–15초)를 벗어난 경우입니다.
+
+**Q. 비용이 너무 많이 나와요.**  
+탐색은 Flash + `fast` 모드, 최종만 Pro + `std` 모드를 사용하세요. 스토리보드 승인 전에 Seedance를 돌리지 않는 것이 가장 효과적인 절약 방법입니다.

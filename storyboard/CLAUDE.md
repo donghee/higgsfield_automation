@@ -57,10 +57,14 @@ Generate **ONE** cinematic storyboard image as a 3×3 grid:
 
 - Pass look references via `--image` from `../ref-ids.md` so consistency is grounded in
   real assets:
-  - **Environment plates** for the scene — always.
-  - **Character close‑up / plate** when a character appears in the beat, so identity is
-    grounded. (Do **not** pass the Seedance character *sheet* grid here — a grid‑of‑angles
-    reference tends to bleed multiple faces into the frames.)
+  - **Environment plates** for the scene — always, and pass **as many as possible**
+    (every relevant environment plate in `../ref-ids.md`) to maximally ground consistency.
+  - **Character sheet** when a character appears in the beat — this anchors identity.
+    - **Mandatory minimum:** the **character sheet UUID** (`--image <char-sheet-uuid>`).
+      Whenever a character is in the scene, this ref is required.
+    - You may also add a **close‑up / detail** of that character to reinforce identity.
+    - **Never** pass the Seedance character *sheet* grid (the grid‑of‑angles reference) —
+      it bleeds multiple faces into the frames.
 - Each frame must:
   - be cinematic widescreen, like a movie still
   - maintain continuity and environment consistency
@@ -116,32 +120,45 @@ On approval:
 
 ## STEP 5 — Frame finalization (standalone stills)
 
+**Key rule: always generate fresh keyframes for every new storyboard sheet.** Never reuse
+keyframes from a previous storyboard version — old keyframes are archived when a new sheet
+is approved. `storyboard/keyframes/` must only contain frames that correspond to the
+current approved sheet.
+
 Once approved, ask:
 
-> "Which frames would you like to finalize as start‑frame stills?"
+> "Which frames would you like to finalize? For each Seedance shot, name the **start frame**
+> and the **end frame** (e.g. start `2` → end `3`)."
 
-The director answers with frame numbers (e.g. `2`, `5`, `7` or `1, 4, 8`). For each frame,
-re‑render it **standalone** with Nano Banana Pro (`nano_banana_2`, `2k`, `16:9`) that:
+Each Seedance shot is driven by **two** stills — a **start frame** and an **end frame** —
+so the director answers in start→end pairs. For **each** frame in a pair, re‑render it
+**standalone** with Nano Banana Pro (`nano_banana_2`, `2k`, `16:9`):
 
-- preserves the **exact composition** of that frame
-- preserves character/environment, lighting, and the sheet's color grading
-- preserves environmental detail
-- **removes the burned‑in 1–9 number** — the standalone still must be clean, with no
-  numbering or grid lines, or it will bleed into the Seedance start frame
+1. **Match the sheet** — keep the frame's exact composition, character, environment,
+   lighting, and color grading.
+2. **Strip the number** — remove the burned‑in 1–9 digit and any grid lines; the still must
+   be clean or the number bleeds into the Seedance frame.
+3. **Anchor identity & environment** — to hold continuity across frames, **always** pass the
+   **character sheet** (UUID or file) as a `--image` ref, plus the relevant **environment
+   plate(s)** for the scene.
+4. **Keep the pair continuous** — the start and end frame of one shot must share the same
+   character, wardrobe, environment, lighting, and color grading; only the boarded action,
+   pose, or camera position should advance from start to end.
+5. **Save & log** — save start as `storyboard/keyframes/<scene>-cut-*-start-frame.png` and
+   end as `storyboard/keyframes/<scene>-cut-*-end-frame.png`, log to `../prompt-log.md`,
+   add an Images row to the tracker for each.
+6. **Upload** to Higgsfield, paste each UUID + URL into `../ref-ids.md`, and note which
+   Seedance shot (and whether start or end) it feeds.
 
-- Log to `../prompt-log.md` and add an Images row to the tracker.
-- Upload to Higgsfield and paste the UUID + URL into `../ref-ids.md`, noting which scene
-  beat / Seedance shot it feeds.
+Then ask whether to finalize more shots. Repeat until the director is done.
 
-After each frame, ask whether more frames should be finalized. Repeat until the director
-is finished.
+## STEP 6 — Hand the frames to video generation
 
-## STEP 6 — Hand the storyboard frames to video generation
+The finalized stills feed Seedance video generation (`../CLAUDE.md` step 5). Build each
+Seedance job's ref stack like this:
 
-The finalized frames from STEP 5 feed Higgsfield / Seedance video generation (`../CLAUDE.md` step 5). Build each Seedance job's ref stack as follows:
-
-- **Mandatory minimum model refs** — always keep the **storyboard sheet UUID** on every job (`--image <storyboard-sheet-uuid>`), per the main `CLAUDE.md` step 5 and `../seedance-prompt-framework.md`.
-
-- **Selected frames → ref by asset type** — for the selected frames, if a related UUID
-  exists in `../ref-ids.md`, pass it by its type: an **image UUID** via `--image`, and a
-  **video UUID** via `--video` to reference it as a video frame.
+1. **Storyboard sheet UUID — always** (`--image <storyboard-sheet-uuid>`). Mandatory on
+   every job, and also named in the prompt text: tell the model to generate the video *from
+   that storyboard sheet* — don't attach it silently.
+2. **Selected frame** — if `../ref-ids.md` has a UUID for the boarded frame, pass it as the
+   start frame by its type: image UUID via `--image`, video UUID via `--video`.
