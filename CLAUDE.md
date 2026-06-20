@@ -65,19 +65,20 @@ Maintain a single Excel file (`feedback-tracker.xlsx`) with three sheets.
 
 **Sheets:**
 - **Sheet 1 — Guide:** usage instructions for the tracker — what each sheet/column means, how `Status` colors work, and the rule to review it before every generation.
-- **Sheet 2 — Images:** one row per generated image. Columns: File Name, Model, Prompt, UUID, Local Path, Source URL, Status, Notes
-- **Sheet 3 — Videos:** one row per generated video. Columns: File Name, Model, Prompt, References, UUID, Local Path, Source URL, Status, Notes
+- **Sheet 2 — Images:** one row per generated image or reference image. Columns: File Name, Model, Prompt, UUID, Local Path, Source URL, Status, Notes
+- **Sheet 3 — Storyboard:** one row per generated storyboard image. Columns: File Name, Model, Prompt, UUID, Local Path, Source URL, Status, Notes
+- **Sheet 4 — Videos:** one row per generated video. Columns: File Name, Model, Prompt, References, UUID, Local Path, Source URL, Status, Notes
 
 **Column definitions:**
 - `File Name`: asset file name
 - `Model`: generation model used (e.g. `nano_banana_2`, `gpt_image_2`, `seedance_2_0`)
 - `Prompt`: full prompt used to generate the asset
-- `References` (video only): UUIDs of reference images or videos passed to the job
-- `UUID`: Asset ID uploaded into higgsfield
+- `References`: UUIDs of input reference images or videos or audio passed to the job
+- `UUID`: Generated Asset ID uploaded into higgsfield
 - `Local Path`: full asset path on local disk
 - `Source URL`: full asset URL — always the complete URL, never abbreviated or truncated
 - `Status`: red = rejected · green = approved · yellow = pending (toggleable cell)
-- `Notes`: freeform feedback per image/video
+- `Notes`: freeform feedback per image/video. This is for reviewer. 
 
 ---
 
