@@ -136,6 +136,30 @@ curl -sS -L "$(curl -sS "$POLLING_URL" -H "Authorization: Bearer $OPENROUTER_API
 3. `input_references` video -- reference video if exists (Higgsfield `--video <reference-video-uuid>`)
 4. *(optional)* `frame_images` with `frame_type:"last_frame"` -- closing frame for a transition (Higgsfield `--end-image`)
 
+### HappyHorse / WAN in Alibaba Cloud (`happyhorse-1.0-i2v` / `happyhorse-1.0-r2v` / `wan2.7-i2v` / `wan2.7-r2v`)
+
+> **전체 파라미터·예시·주의사항은 [`alibaba-cloud-prompt-framework.md`](alibaba-cloud-prompt-framework.md)를 참고하세요.**
+
+**모델 요약:**
+- `happyhorse-1.0-i2v` — start frame 1장만으로 영상 생성 (`first_frame` 타입만 허용)
+- `happyhorse-1.0-r2v` — 1–9장 reference image로 영상 생성 (`[Image N]` 프롬프트 참조)
+- `wan2.7-i2v-2026-04-25` — first/last frame + audio + video continuation 지원하는 가장 유연한 i2v
+- `wan2.7-r2v` — 다중 캐릭터 reference(image+video) + 캐릭터별 voice 지원
+
+**Recommended ref stack:**
+
+| Mode | Ref stack |
+|---|---|
+| `happyhorse i2v` | `first_frame` = 승인된 시작 스틸 (다른 타입 불가 — char/storyboard ref는 프롬프트 텍스트로) |
+| `happyhorse r2v` | `media[0]` char sheet → `[Image 1]` · `media[1]` storyboard sheet → `[Image 2]` |
+| `wan2.7 i2v` | `first_frame` + optional `last_frame` + optional `driving_audio` |
+| `wan2.7 r2v` | `reference_image`/`reference_video` per character (max 5) + optional `first_frame` |
+
+
+**Usage tips for Alibaba Cloud video generation:**
+- Image/video `url` can be a public `https://` URL or base64. Upload assets to Higgsfield first and pass their image/video URLs as input.
+- **Strip the number in storyboard frame** — remove the burned‑in 1–9 digit and any grid lines before using a storyboard still as `first_frame`; the still must be clean or the number bleeds into the video frame.
+
 ---
 ## Prompt workflow
 

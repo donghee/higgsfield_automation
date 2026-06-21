@@ -428,7 +428,7 @@ prompt 로그 파일 보고 경계 프레임이 같은 키프레임을 제대로
 
 **Q. Seedance 2.0 외에 다른 video generation모델은?**
 - Kling 3.0, 가격: https://kling.ai/dev/pricing
-- alibaba에서 제공하는 video generation 모델로 HappyHorse와 WAN 2.7이 있음,  가격: https://www.qwencloud.com/models?output=video
+- alibaba에서 제공하는 video generation 모델로 HappyHorse 1과 WAN 2.7이 있음, 가격: https://www.alibabacloud.com/help/en/model-studio/model-pricing  Happy Horse 1.0 t2v 1080p $0.24/s
     - API https://www.alibabacloud.com/help/en/model-studio/video-generation-api/
 - Google Veo 3.1, 가격: Veo 3 Fast: $0.15/초, Veo 3: $0.40/초 (2026년 6월 현재) 
     - API https://ai.google.dev/gemini-api/docs/video
