@@ -42,10 +42,9 @@ Reference data lives in:
 - Paste uploaded UUIDs and URLs into `ref-ids.md`
 
 ### 5. Generate video
-- Drive every Seedance job from the **approved storyboard sheet** built in step 4 — it is the shot's visual blueprint, not an optional reference.
-- Name the **storyboard sheet UUID** in the prompt text to generate the video *from that storyboard sheet* — never attach it silently.
+- **If a storyboard sheet exists:** Drive every Seedance job from the **approved storyboard sheet** — it is the shot's visual blueprint, not an optional reference. Name the **storyboard sheet UUID explicitly in the prompt text** (never attach it silently), and pass it via `--image <storyboard-sheet-uuid>`. Mandatory minimum refs: storyboard sheet UUID + character sheet UUID.
+- **If no storyboard sheet exists:** Generate directly from `handoff.md` scene briefs. Mandatory minimum ref: character sheet UUID (`--image <char-sheet-uuid>`). No storyboard sheet required.
 - Read `handoff.md` for the scene brief and `seedance-prompt-framework.md` for prompt structure and ref-stack rules
-- **Mandatory minimum refs on every Seedance job:** the approved **storyboard sheet UUID** and the **character sheet UUID** (`--image <storyboard-sheet-uuid> --image <char-sheet-uuid>`) — the storyboard sheet anchors composition/continuity, the char sheet anchors
 - **Single shot:** always pass `--start-image`.
 - **Multishot sequence:** always pass `--start-image` and `--end-image` to keep continuity across cuts.
 - **Boarded-frame shot:** when a shot matches a specific storyboard frame, use that frame's **finalized standalone still** (storyboard STEP 5) as `--start-image` / `--end-image`. Pull additional references from `ref-ids.md` with `--image` and `--video`.

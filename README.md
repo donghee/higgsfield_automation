@@ -24,7 +24,7 @@ Higgsfield AI로 영상을 자동 생성하는 워크플로우.
 2. **환경 만들기** — `environments/CLAUDE.md`를 따라 환경 이미지 업로드·분석 후 `environments/description.md` 작성
 3. **handoff 만들기** — `handoff.template.md`를 참고해 프로젝트 정보·레퍼런스 UUID·레퍼런스 스택을 채워 `handoff.md` 생성
 4. **스토리보드 시트 만들기** — `storyboard/CLAUDE.md`를 따라 9프레임(3×3) 스토리보드 시트(`storyboard-*-sheet.png`)를 생성·Higgsfield 업로드, 생성 내역을 `storyboard/storyboard-log.md`에 누적 기록하고 승인된 시트 UUID를 `ref-ids.md`에 기록
-5. **영상 생성** — 승인된 스토리보드 시트를 기준으로 Seedance 영상 생성. 모든 잡에 **스토리보드 시트 UUID**(구도·연속성)와 **캐릭터 시트 UUID**(정체성)를 `--image`로 전달하고, 특정 프레임 샷은 해당 스틸을 시작 프레임으로 추가. 결과물은 `outputs/`에 저장
+5. **영상 생성** — 승인된 handoff와 스토리보드 시트를 기준으로 Seedance 영상 생성. 모든 잡에 **스토리보드 시트 UUID**(구도·연속성)와 **캐릭터 시트 UUID**(정체성)를 `--image`로 전달하고, 특정 프레임 샷은 해당 스틸을 시작 프레임으로 추가. 결과물은 `outputs/`에 저장
 6. **프롬프트 로깅** — 모든 이미지/영상 프롬프트를 `prompt-log.md`에 기록, Seedance 실패는 `seedance-failure-log.md`에 별도 기록
 7. **피드백 트래커** — `feedback-tracker.xlsx`(Guide·Images·Videos 3개 시트)에 생성 결과를 기록하고, 생성 전 검토해 승인/거절 방향을 학습
 
@@ -55,6 +55,7 @@ nvm install node
 nvm use node
 
 # 4. Higgsfield 스킬 추가 — Claude Code가 Higgsfield API를 직접 호출할 수 있게 됨
+## https://higgsfield.ai/skills
 npx skills add higgsfield-ai/skills --agent claude-code -a opencode -g --copy -y
 npx skills add OpenRouterTeam/skills openrouter-video -a claude-code -a opencode -g --copy -y
 ```
@@ -264,7 +265,7 @@ higgsfield_automation/
 ## Scene Briefs             ← 컷별 카메라·감정 한줄 요약
 ```
 
-**`models/descriptions.template.md`** (및 `environments/descriptions.template.md`) — 캐릭터·환경 설명 문서의 **빈 양식**입니다. Higgsfield에 이미지를 업로드한 뒤, 이 양식을 따라 외형 묘사와 UUID를 기록하면 Claude가 나중에 프롬프트를 쓸 때 참조합니다.
+**`models/descriptions.template.md`** (및 `environments/descriptions.template.md`) — 캐릭터·환경 설명 문서의 **템플릿 양식**입니다. Higgsfield에 이미지를 업로드한 뒤, 이 양식을 따라 외형 묘사와 UUID를 기록하면 Claude가 나중에 프롬프트를 쓸 때 참조합니다.
 
 ```markdown
 ## Model N
@@ -315,7 +316,6 @@ Claude가 자동으로 수행하는 것:
 생성된 스토리보드 예시
 
 ![생성된 스토리 보드](docs/storyboard-nr-rovers-sheet.png)
-
 
 스토리 보드 수정이 필요하면
 
@@ -406,7 +406,7 @@ outputs/
 **Q. 스토리보드가 마음에 들지 않아요.**  
 `"다시 생성해줘"`라고 말하면 Claude가 동일 레퍼런스로 재생성. 구체적으로 설명 해야함.  `"3번 프레임 카메라를 더 낮게, 개그가 더 강조되게"`.
 
-**Q. 컷 이음새에서 배경이 갑자기 바뀌어요.**  
+**Q. 컷 연결이 갑자기 바뀌어요.** 
 prompt 로그 파일 보고 경계 프레임이 같은 키프레임을 제대로 쓰는지 확인. 앞 컷의 `--end-image`와 뒤 컷의 `--start-image`가 동일한 UUID를 가리켜야 합니다.
 
 **Q. Seedance job 이 실패했어요.**  
@@ -415,5 +415,20 @@ prompt 로그 파일 보고 경계 프레임이 같은 키프레임을 제대로
 **Q. 비용이 너무 많이 나와요.**  
 - 디렉터 모델로 클로드 말고 deepseek v4 pro를 사용해 보세요.
 - 이미지 모델은 탐색은 Flash + `fast` 모드, 최종만 Pro + `std` 모드를 사용하세요. 
-- 스토리보드 승인 전에 Seedance를 돌리지 않는 것이 가장 효과적인 절약 방법입니다.
-- alibaba cloud에서 제공하는 video generation 모델 사용 https://www.alibabacloud.com/help/en/model-studio/video-generation-api/
+- 스토리 보드 없이 handoff 만으로 제작. 이미지 모델 비용 최소화.
+- higgsfield에서 Seedance 2.0 가격이 오르고 있음. MCP/skills 에서 unlimited 모델 사용 안됨.
+- 실제 사용 크레딧이나 비용을 로그로 남겨 보고 판단.
+
+**2026년 6월 현재 Seedance 2.0 가격 비교**
+
+| 서비스 | 영상 모델 | 해상도 | 생성 시간 | 비용 | 비고 |
+|--------|-----------|--------|-----------|------|------|
+| OpenRouter | Seedance 2.0 | 1080p | 15초 | $2.27 | 달러 직접 청구 |
+| Higgsfield | Seedance 2.0 | 1080p | 15초 | 65.5 Credits ≈ $3.28 | $1 = 20 Credits |
+
+**Q. Seedance 2.0 외에 다른 video generation모델은?**
+- Kling 3.0, 가격: https://kling.ai/dev/pricing
+- alibaba에서 제공하는 video generation 모델로 HappyHorse와 WAN 2.7이 있음,  가격: https://www.qwencloud.com/models?output=video
+    - API https://www.alibabacloud.com/help/en/model-studio/video-generation-api/
+- Google Veo 3.1, 가격: Veo 3 Fast: $0.15/초, Veo 3: $0.40/초 (2026년 6월 현재) 
+    - API https://ai.google.dev/gemini-api/docs/video
