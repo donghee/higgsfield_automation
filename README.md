@@ -88,7 +88,6 @@ npx skills add OpenRouterTeam/skills openrouter-video -a claude-code -a opencode
 
 higgsfield API를 명령어로 실행할 수 있도록 만든 도구
 
-```
 모델의 입력 도움말 
 ```
 higgsfield model get nano_banana_2
