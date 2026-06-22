@@ -12,8 +12,8 @@ Higgsfield AI로 영상을 자동 생성하는 워크플로우.
 - `ref-ids.md` — 업로드한 모든 에셋 UUID
 - `models/description.md` — 모델 정체성 및 의상 사양
 - `environments/description.md` — 환경 설명
-- `handoff.md` — 프로젝트 기획 문서 (콘셉트·캐릭터 설명·레퍼런스 UUID·씬 브리프); 모든 생성 작업의 출발점
-- `storyboard/storyboard-*-sheet-*.png` — 9프레임 3×3 스토리보드 시트, 없어도 됨. `handoff.md` 기획서로 만으로도 가능
+- `handoff.md` — 핸드오프: 프로젝트의 맥락과 작업을 영상, 이미지 모델에게 전달하는 문서 (콘셉트·캐릭터 설명·레퍼런스 UUID·씬 브리프); 모든 생성 작업의 출발점
+- `storyboard/storyboard-*-sheet-*.png` — 9프레임 3×3 스토리보드 시트, 없어도 됨. `handoff.md` 만으로도 영상 생성 가능
 - `seedance-prompt-framework.md` — 프롬프트 구조, 모델 파라미터, 사운드 디자인 규칙
 - `feedback-tracker.xlsx` - 생성 결과  피드백 파일
 - `CLAUDE.md` — 에이전트 작업 지침
@@ -22,7 +22,7 @@ Higgsfield AI로 영상을 자동 생성하는 워크플로우.
 
 1. **모델 만들기** — `models/CLAUDE.md`를 따라 캐릭터 시트·클로즈업 생성, Higgsfield 업로드 후 `models/description.md` 작성
 2. **환경 만들기** — `environments/CLAUDE.md`를 따라 환경 이미지 업로드·분석 후 `environments/description.md` 작성
-3. **handoff 만들기** — `handoff.template.md`를 참고해 프로젝트 정보·레퍼런스 UUID·레퍼런스 스택을 채워 `handoff.md` 생성
+3. **핸드오프 만들기** — `handoff.template.md`를 참고해 프로젝트 정보·레퍼런스 UUID·레퍼런스 스택을 채워 `handoff.md` 생성
 4. **스토리보드 시트 만들기** — `storyboard/CLAUDE.md`를 따라 9프레임(3×3) 스토리보드 시트(`storyboard-*-sheet.png`)를 생성·Higgsfield 업로드, 생성 내역을 `storyboard/storyboard-log.md`에 누적 기록하고 승인된 시트 UUID를 `ref-ids.md`에 기록
 5. **영상 생성** — 승인된 handoff와 스토리보드 시트를 기준으로 Seedance 영상 생성. 모든 잡에 **스토리보드 시트 UUID**(구도·연속성)와 **캐릭터 시트 UUID**(정체성)를 `--image`로 전달하고, 특정 프레임 샷은 해당 스틸을 시작 프레임으로 추가. 결과물은 `outputs/`에 저장
 6. **프롬프트 로깅** — 모든 이미지/영상 프롬프트를 `prompt-log.md`에 기록, Seedance 실패는 `seedance-failure-log.md`에 별도 기록
@@ -148,7 +148,7 @@ Seedance 2.0 영상 생성에 쓰이는 주요 플래그입니다.
 
 #### 핸드오프 (handoff.md)
 
-**프로젝트 기획 문서**입니다. 영상의 콘셉트·캐릭터 설명·레퍼런스 UUID·씬 요약이 한 파일에 담겨 있으며, Claude가 모든 생성 작업을 시작할 때 이 파일을 가장 먼저 읽습니다.
+이미지,영상 모델 에이전트에 전달하는 **핸드오프**입니다. 영상의 콘셉트·캐릭터 설명·레퍼런스 UUID·씬 요약이 한 파일에 담겨 있으며, Claude가 모든 생성 작업을 시작할 때 이 파일을 가장 먼저 읽습니다.
 
 ```
 handoff.md 구조
@@ -299,7 +299,7 @@ higgsfield_automation/
 
 #### 3. handoff 읽기
 
-`handoff.md`는 에피소드의 기획서 입니다.
+`handoff.md`는 핸드오프 파일입니다.
 
 ```bash
 # Claude에게 지시
@@ -314,7 +314,7 @@ Claude가 읽어오는 핵심 정보:
 
 #### 4. 스토리보드 생성
 
-화면을 명시적으로 만들때는 스토리 보드를 이용, 자유롭게 탐험할때는 기획서(`handoff.md`) 만으로 생성하는게
+화면을 명시적으로 만들때는 스토리 보드를 이용, 자유롭게 탐험할때는 핸드오프(`handoff.md`) 만으로 생성하는게
 좋음(토큰 절약)
 
 ```bash
