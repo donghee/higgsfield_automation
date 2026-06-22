@@ -12,7 +12,7 @@ Higgsfield AI로 영상을 자동 생성하는 워크플로우.
 - `ref-ids.md` — 업로드한 모든 에셋 UUID
 - `models/description.md` — 모델 정체성 및 의상 사양
 - `environments/description.md` — 환경 설명
-- `handoff.md` — 핸드오프: 프로젝트의 맥락과 작업을 영상, 이미지 모델에게 전달하는 문서 (콘셉트·캐릭터 설명·레퍼런스 UUID·씬 브리프); 모든 생성 작업의 출발점
+- `handoff.md` — 핸드오프: 프로젝트의 맥락과 에셋을 AI 에이전트(영상, 이미지 모델)에게 전달하는 문서 (콘셉트·캐릭터 설명·레퍼런스 UUID·장면 설명); 모든 생성 작업의 출발점. AI 에이전트가 일관된 일을 하기 위해서 핸드오프 문서가 필수. 
 - `storyboard/storyboard-*-sheet-*.png` — 9프레임 3×3 스토리보드 시트, 없어도 됨. `handoff.md` 만으로도 영상 생성 가능
 - `seedance-prompt-framework.md` — 프롬프트 구조, 모델 파라미터, 사운드 디자인 규칙
 - `feedback-tracker.xlsx` - 생성 결과  피드백 파일
