@@ -31,7 +31,7 @@ Reference data lives in:
 
 ### 3. Create handoff.md
 - Read `handoff.template.md`
-- Fill in project title, model descriptions, reference UUIDs, and ref stacks
+- Fill in project title, model descriptions, reference UUIDs, ref stacks, scene briefs and details
 - Save as `handoff.md`
 
 ### 4. Create Storyboard sheet
