@@ -11,7 +11,8 @@ Reference data lives in:
 - `ref-ids.md` — all uploaded asset UUIDs
 - `models/description.md` — model identity and outfit specs
 - `environments/description.md` — environment descriptions
-- `seedance-prompt-framework.md` — prompt structure, model params, sound design rules
+- `seedance-prompt-framework.md` — prompt structure, model params, sound design rules for seedance
+- `alibaba-cloud-prompt-framework.md` — prompt structure, model params, sound design rules for alibaba happyhorse and wan
 
 ---
 
@@ -42,7 +43,9 @@ Reference data lives in:
 - Paste uploaded UUIDs and URLs into `ref-ids.md`
 
 ### 5. Generate video
-- **If a storyboard sheet exists:** Drive every Seedance job from the **approved storyboard sheet** — it is the shot's visual blueprint, not an optional reference. Name the **storyboard sheet UUID explicitly in the prompt text** (never attach it silently), and pass it via `--image <storyboard-sheet-uuid>`. Mandatory minimum refs: storyboard sheet UUID + character sheet UUID.
+- **If a storyboard sheet exists:** Drive every video generation job from the **approved storyboard sheet** — it is the shot's visual blueprint, not an optional reference. Name the **storyboard sheet UUID explicitly in the prompt text** (never attach it silently), and pass it via `--image <storyboard-sheet-uuid>`. Mandatory minimum refs: storyboard sheet UUID + character sheet UUID.
+  - In the prompt text, explicitly state that the storyboard image ref is a 9-panel storyboard sheet and is the visual blueprint for composition and timing. Example: `[Image N] is a 9-panel storyboard sheet showing the full sequence — use it as the visual blueprint for composition and timing.`
+  - Always instruct the model to ignore burned-in frame numbers: `Ignore all frame numbers burned into [Image N]; do not render any digits or text overlays in the output.`
 - **If no storyboard sheet exists:** Generate directly from `handoff.md` scene briefs. Mandatory minimum ref: character sheet UUID (`--image <char-sheet-uuid>`). No storyboard sheet required.
 - Read `handoff.md` for the scene brief and `seedance-prompt-framework.md` for prompt structure and ref-stack rules
 - **Single shot:** always pass `--start-image`.

@@ -2,12 +2,14 @@
 
 HappyHorse / WAN models via Alibaba Cloud Model Studio API.
 
-All models are **async**: submit → poll → download. Requires `DASHSCOPE_API_KEY` and `WORKSPACE_ID`.
+All models are **async**: submit → poll → download. Requires `DASHSCOPE_API_KEY`.
 
 **API endpoint:**
 ```
-POST https://{WORKSPACE_ID}.ap-southeast-1.maas.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis
+POST https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis
 ```
+
+> **Polling endpoint:** `GET https://dashscope-intl.aliyuncs.com/api/v1/tasks/{task_id}`
 
 ---
 
@@ -15,8 +17,8 @@ POST https://{WORKSPACE_ID}.ap-southeast-1.maas.aliyuncs.com/api/v1/services/aig
 
 | Model | Type | Best for |
 |---|---|---|
-| `happyhorse-1.0-i2v` | image-to-video | Locked composition shots driven from a single start frame. No end frame support. |
-| `happyhorse-1.0-r2v` | reference-to-video | Multi-ref cinematic shots driven from 1–9 reference images. |
+| `happyhorse-1.1-i2v` | image-to-video | Locked composition shots driven from a single start frame. No end frame support. |
+| `happyhorse-1.1-r2v` | reference-to-video | Multi-ref cinematic shots driven from 1–9 reference images. |
 | `wan2.7-i2v-2026-04-25` | image-to-video | Most flexible i2v — `first_frame` + optional `last_frame`, `driving_audio`, or video continuation (`first_clip`). |
 | `wan2.7-r2v` | reference-to-video | Complex multi-character shots with `reference_image`/`reference_video` and per-character voice (`reference_voice`). |
 
@@ -26,7 +28,7 @@ POST https://{WORKSPACE_ID}.ap-southeast-1.maas.aliyuncs.com/api/v1/services/aig
 
 | Param | `happyhorse i2v` | `happyhorse r2v` | `wan2.7 i2v` | `wan2.7 r2v` |
 |---|---|---|---|---|
-| `model` | `happyhorse-1.0-i2v` | `happyhorse-1.0-r2v` | `wan2.7-i2v-2026-04-25` | `wan2.7-r2v` |
+| `model` | `happyhorse-1.1-i2v` (or `1.0`) | `happyhorse-1.1-r2v` (or `1.0`) | `wan2.7-i2v-2026-04-25` | `wan2.7-r2v` |
 | `input.prompt` | Optional | Required. Use `[Image N]` | Optional | Required. Use `Image N`, `Video N` identifiers |
 | `input.negative_prompt` | Not supported | Not supported | Optional. Max 500 chars | Optional. Max 500 chars |
 | `input.media` | Exactly 1 `first_frame` | 1–9 `reference_image` | See valid combinations below | See asset limits below |
@@ -101,43 +103,43 @@ Only the following combinations are accepted — any other combination returns a
 **1. Submit** → returns `task_id`:
 
 ```bash
-export WORKSPACE_ID="ws-xxxxxxxxxxxxxxxx"
+API_URL="https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis"
 
 # happyhorse i2v — first frame only (ratio follows input image, no other media types allowed)
-curl -X POST "https://${WORKSPACE_ID}.ap-southeast-1.maas.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis" \
+curl -X POST "$API_URL" \
   -H "X-DashScope-Async: enable" \
   -H "Authorization: Bearer $DASHSCOPE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "happyhorse-1.0-i2v",
+    "model": "happyhorse-1.1-i2v",
     "input": {
       "prompt": "PROMPT describing action and scene. No music.",
       "media": [
         { "type": "first_frame", "url": "https://example.com/start-frame.png" }
       ]
     },
-    "parameters": { "resolution": "720P", "duration": 5, "watermark": false }
+    "parameters": { "resolution": "720P", "duration": 5, "watermark_switch": false }
   }'
 
-# happyhorse r2v — multi-ref driven
-curl -X POST "https://${WORKSPACE_ID}.ap-southeast-1.maas.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis" \
+# happyhorse r2v — multi-ref driven (input.media with type=reference_image)
+curl -X POST "$API_URL" \
   -H "X-DashScope-Async: enable" \
   -H "Authorization: Bearer $DASHSCOPE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "happyhorse-1.0-r2v",
+    "model": "happyhorse-1.1-r2v",
     "input": {
-      "prompt": "PROMPT referencing [Image 1] for character identity and [Image 2] for composition. No music.",
+      "prompt": "[Image 1] is the character reference for CHARACTER_NAME. [Image 2] is a 9-panel storyboard sheet showing the full sequence — use it as the visual blueprint for composition and timing. Ignore all frame numbers burned into [Image 2]; do not render any digits or text overlays in the output. PROMPT ... No music.",
       "media": [
         { "type": "reference_image", "url": "https://example.com/char-sheet.png" },
         { "type": "reference_image", "url": "https://example.com/storyboard-sheet.png" }
       ]
     },
-    "parameters": { "resolution": "720P", "duration": 5, "ratio": "16:9", "watermark": false }
+    "parameters": { "resolution": "720P", "duration": 5, "ratio": "16:9", "watermark_switch": false }
   }'
 
 # wan2.7 i2v — first frame + last frame (supports transitions)
-curl -X POST "https://${WORKSPACE_ID}.ap-southeast-1.maas.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis" \
+curl -X POST "$API_URL" \
   -H "X-DashScope-Async: enable" \
   -H "Authorization: Bearer $DASHSCOPE_API_KEY" \
   -H "Content-Type: application/json" \
@@ -155,7 +157,7 @@ curl -X POST "https://${WORKSPACE_ID}.ap-southeast-1.maas.aliyuncs.com/api/v1/se
   }'
 
 # wan2.7 r2v — multi-subject reference with voice
-curl -X POST "https://${WORKSPACE_ID}.ap-southeast-1.maas.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis" \
+curl -X POST "$API_URL" \
   -H "X-DashScope-Async: enable" \
   -H "Authorization: Bearer $DASHSCOPE_API_KEY" \
   -H "Content-Type: application/json" \
@@ -185,7 +187,7 @@ Response: `{ "output": { "task_id": "...", "task_status": "PENDING" }, "request_
 **2. Poll** `GET /tasks/{task_id}` every ~15s until `task_status` is `SUCCEEDED` (terminal: `FAILED`, `CANCELED`, `UNKNOWN`):
 
 ```bash
-curl -X GET "https://${WORKSPACE_ID}.ap-southeast-1.maas.aliyuncs.com/api/v1/tasks/{task_id}" \
+curl -X GET "https://dashscope-intl.aliyuncs.com/api/v1/tasks/{task_id}" \
   -H "Authorization: Bearer $DASHSCOPE_API_KEY" | jq '.output.task_status, .output.video_url'
 ```
 
@@ -194,7 +196,7 @@ Status flow: `PENDING` → `RUNNING` → `SUCCEEDED` or `FAILED`.
 **3. Download** the finished MP4 (video URL valid for 24 hours only — save promptly):
 
 ```bash
-curl -L "$(curl -sS "https://${WORKSPACE_ID}.ap-southeast-1.maas.aliyuncs.com/api/v1/tasks/{task_id}" \
+curl -L "$(curl -sS "https://dashscope-intl.aliyuncs.com/api/v1/tasks/{task_id}" \
   -H "Authorization: Bearer $DASHSCOPE_API_KEY" | jq -r '.output.video_url')" \
   --output output.mp4
 ```
@@ -220,3 +222,105 @@ curl -L "$(curl -sS "https://${WORKSPACE_ID}.ap-southeast-1.maas.aliyuncs.com/ap
 - **wan2.7 r2v**: use `Image N` / `Video N` identifiers (images and videos counted separately). Each subject reference must contain only one character. Duration capped at 10s when `reference_video` is included.
 - Keep the same prompt structure and sound-design rules as the Higgsfield/OpenRouter path; only the transport changes.
 - Task IDs and video URLs are valid for 24 hours only.
+
+---
+## Prompt workflow
+
+
+### What Claude does
+
+Claude is prompt writer, It takes directional short and turns it into structured prompts optimised for
+Seedance, The director directes and ideates, Claude writes, happyhorse or wan shoots
+
+---
+
+## Custom project context
+
+Set up claude with the film's setting, charater roster, tone and relevant context, without it Claude writes
+generic prompts, With it, the prompt is tuned to the specific project
+
+For this project that context lives in:
+- `models/Description.md` -- model identity and outfit specs
+- `environment/Description.md` -- environment descriptions
+- `storyboard/storyboard-log.md` -- storyboard descriptions
+- `ref-ids.md` --  all uploaded image UUIDs
+- `alibaba-cloud-prompt-framework.md` -- this file
+
+---
+
+## You stay the director
+
+Describe the scene the way you would brief a DP. A paragraph of shorthand naming characters, beats, geography,
+sometimes a film comparison. Claude knows what you're talking about turns that into the full structured prompt.
+
+---
+
+## The clarification pass
+
+Before drafting, Claude asks questions about anything it has doubts about to make sure the instructions are as clear as possible. Standard questions:
+
+- **Duration** – how long? (Seedance 2 supports 4–15s)
+- **Camera** – locked off, tracking, crane, handheld?
+- **Sound design** – what physical sounds define this scene?
+- **Start/end frame** – what does it open on, what does it end on?
+- **Aspect ratio** – 16:9 editorial or 9:16 social?
+- **Film reference** – any visual reference for the energy or tone?
+
+---
+
+## Voice and sound design
+Every character has a voice descriptor that holds across scenes. Sound design is always **physical and specific, never musical**, escalating with the action. This gets footage with excellent sound design while avoiding footage with music.
+
+**Sound design principles:**
+- Name the specific material making the sound (volcanic gravel, nylon anorak, lattice-heel sneaker)
+- Describe how it escalates through the clip
+- Always end the prompt with: **No music.**
+
+---
+
+## Prompt structure
+
+Use this order for every HappyHorse/WAN prompt:
+
+1. `[Image N]` character declarations, one line per character sheet.
+2. `[Image N]` storyboard sheet declaration, if a storyboard sheet is included.
+3. Frame-number suppression line, if a storyboard sheet is included.
+4. Main prompt body.
+
+[WHO] – subject description, outfit, defining physical detail (hair colour, silhouette)
+[ACTION] – what are they doing, how does it feel physically
+[CAMERA] – start position, movement over time, end position
+[ENVIRONMENT] – setting, time of day, atmospheric detail
+[LIGHT] – light sources, quality, colour, how it interacts with the subject
+[SOUND] – specific physical sounds, escalation, no music
+
+---
+
+## Use Claude for variations
+When a beat could go three ways, ask Claude for three versions of the same prompt with different tonal or staging choices, then run all three in HappyHorse/WAN and compare the outputs.
+
+**Variation axes to explore:**
+- Camera distance (tight / mid / wide)
+- Camera movement (static / tracking / pull-back / crane up)
+- Time of action (start of movement / mid-action / aftermath)
+- Sound emphasis (intimate and close / building to wide)
+
+---
+
+## Media flags for HappyHorse and WAN
+
+These rules apply whenever a storyboard sheet or character sheet is passed as a `reference_image`.
+
+**Important:** Always name each reference image explicitly in the prompt using its index (`[Image N]`). Do not rely on silent media attachment.
+
+**Storyboard sheet rule:** Always identify the storyboard sheet at the top of the prompt and state how it should be used.
+
+> `[Image N] is a 9-panel storyboard sheet showing the full sequence — use it as the visual blueprint for composition and timing.`
+
+Then add the frame-number suppression line:
+
+> `Ignore all frame numbers burned into [Image N]; do not render any digits or text overlays in the output.`
+
+**Character sheet rule:** Always identify each character sheet at the top of the prompt.
+
+> `[Image N] is the character reference for CHARACTER_NAME.`
