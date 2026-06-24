@@ -11,6 +11,7 @@ Reference data lives in:
 - `ref-ids.md` — all uploaded asset UUIDs
 - `models/description.md` — model identity and outfit specs
 - `environments/description.md` — environment descriptions
+- `shotlist-director.md` — shotlist and prompt structure
 - `seedance-prompt-framework.md` — prompt structure, model params, sound design rules for seedance
 - `alibaba-cloud-prompt-framework.md` — prompt structure, model params, sound design rules for alibaba happyhorse and wan
 
@@ -21,44 +22,54 @@ Reference data lives in:
 ### 1. Create Model Descriptions
 - Follow `models/CLAUDE.md`
 - Generate character sheets (`model-*-char-sheet.png`) and close-up shots (`model-*-detail-*.png`) with Nano Banana Pro
-- Upload all model images to Higgsfield, then write `models/description.md` (one `## Model N` section each)
+- Upload all model images to Higgsfield, then write `models/description.md` (one `## Model N -- @NAME` section each)
 - Paste uploaded UUIDs and URLs into `ref-ids.md`
 
 ### 2. Create Environment Descriptions
 - Follow `environments/CLAUDE.md`
 - Upload every environment image to Higgsfield and analyze each in detail
-- Write `environments/description.md` (one `## FILENAME -- TITLE` section each, covering texture, lighting, atmosphere, scale, best-for scenes)
+- Write `environments/description.md` (one `## Environment N -- @NAME` section each, covering texture, lighting, atmosphere, scale, best-for scenes)
 - Paste uploaded UUIDs and URLs into `ref-ids.md`
 
 ### 3. Create handoff.md
 - Read `handoff.template.md`
-- Fill in project title, model descriptions, reference UUIDs and ref stacks
+- Fill in project title, descriptions, reference UUIDs and ref stacks
 - Save as `handoff.md`
 
 ### 4. Create Director's Shotlist
-- Follow `shotlist-director.md`
+For this project that context lives in:
+- `models/description.md` -- model identity and outfit specs
+- `environment/description.md` -- environment descriptions
+- `handoff.md` -- ref stacks
+- `ref-ids.md` --  all uploaded image UUIDs
+
+And Create shotlist:
+- Follow `shotlist-director.md` to create director's shotlist
 - Generate `shotlist.html` file
 
-### 4b. Create Storyboard sheet (Optional)
+### 4b. Create Storyboard Sheet (Optional)
 - Read `handoff.md` for ref stacks
-- Read `shortlist.html` for shotlist
+- Read `shotlist.html` for shotlist
 - Follow `storyboard/CLAUDE.md`
 - Generate storyboard sheet (`storyboard-*-sheet.png`) and Upload storyboard sheet images to Higgsfield
 - **Append** all generation details (prompt, job ID, URL, UUID, version notes, storyboard sheet) to `storyboard/storyboard-log.md` — this file is the cumulative archive; every new storyboard version gets appended, never overwritten
 - Paste uploaded UUIDs and URLs into `ref-ids.md`
 
-### 6. Generate video
+### 5. Generate Video
 - **If a storyboard sheet exists:** Drive every video generation job from the **approved storyboard sheet** — it is the shot's visual blueprint, not an optional reference. Name the **storyboard sheet UUID explicitly in the prompt text** (never attach it silently), and pass it via `--image <storyboard-sheet-uuid>`. Mandatory minimum refs: storyboard sheet UUID + character sheet UUID.
   - In the prompt text, explicitly state that the storyboard image ref is a 9-panel storyboard sheet and is the visual blueprint for composition and timing. Example: `[Image N] is a 9-panel storyboard sheet showing the full sequence — use it as the visual blueprint for composition and timing.`
   - Always instruct the model to ignore burned-in frame numbers: `Ignore all frame numbers burned into [Image N]; do not render any digits or text overlays in the output.`
 - **If no storyboard sheet exists:** Generate directly from `handoff.md` scene briefs. Mandatory minimum ref: character sheet UUID (`--image <char-sheet-uuid>`). No storyboard sheet required.
-- Read `handoff.md` for the scene brief and `seedance-prompt-framework.md` for prompt structure and ref-stack rules
+- Read `handoff.md` for the reference resources
+- Read `outputs/shotlist.html` for prompt and scene generation.
+- `seedance-prompt-framework.md` for model reference and ref stacks when using Seedance
+- `alibaba-cloud-prompt-framework.md` for model reference and ref stacks when using HappyHorse and WAN
 - **Single shot:** always pass `--start-image`.
 - **Multishot sequence:** always pass `--start-image` and `--end-image` to keep continuity across cuts.
 - **Boarded-frame shot:** when a shot matches a specific storyboard frame, use that frame's **finalized standalone still** (storyboard STEP 5) as `--start-image` / `--end-image`. Pull additional references from `ref-ids.md` with `--image` and `--video`.
 - Save every generated video to the `outputs/` directory.
 
-### 6. Log prompts
+### 6. Log Prompts
 - Append every image/video prompt (with job ID and output URL) to `prompt-log.md`
 - Log Seedance failures separately in `seedance-failure-log.md`
 

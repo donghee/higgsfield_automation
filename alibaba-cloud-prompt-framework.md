@@ -240,8 +240,9 @@ Set up claude with the film's setting, charater roster, tone and relevant contex
 generic prompts, With it, the prompt is tuned to the specific project
 
 For this project that context lives in:
-- `models/Description.md` -- model identity and outfit specs
-- `environment/Description.md` -- environment descriptions
+- `models/description.md` -- model identity and outfit specs
+- `environment/description.md` -- environment descriptions
+- `output/shotlist.html` -- shotlist
 - `storyboard/storyboard-log.md` -- storyboard descriptions
 - `ref-ids.md` --  all uploaded image UUIDs
 - `alibaba-cloud-prompt-framework.md` -- this file
