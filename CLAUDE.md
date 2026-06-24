@@ -32,17 +32,22 @@ Reference data lives in:
 
 ### 3. Create handoff.md
 - Read `handoff.template.md`
-- Fill in project title, model descriptions, reference UUIDs, ref stacks, scene briefs and details
+- Fill in project title, model descriptions, reference UUIDs and ref stacks
 - Save as `handoff.md`
 
-### 4. Create Storyboard sheet
-- Read `handoff.md` for scene briefs and ref stacks
+### 4. Create Director's Shotlist
+- Follow `shotlist-director.md`
+- Generate `shotlist.html` file
+
+### 4b. Create Storyboard sheet (Optional)
+- Read `handoff.md` for ref stacks
+- Read `shortlist.html` for shotlist
 - Follow `storyboard/CLAUDE.md`
 - Generate storyboard sheet (`storyboard-*-sheet.png`) and Upload storyboard sheet images to Higgsfield
 - **Append** all generation details (prompt, job ID, URL, UUID, version notes, storyboard sheet) to `storyboard/storyboard-log.md` — this file is the cumulative archive; every new storyboard version gets appended, never overwritten
 - Paste uploaded UUIDs and URLs into `ref-ids.md`
 
-### 5. Generate video
+### 6. Generate video
 - **If a storyboard sheet exists:** Drive every video generation job from the **approved storyboard sheet** — it is the shot's visual blueprint, not an optional reference. Name the **storyboard sheet UUID explicitly in the prompt text** (never attach it silently), and pass it via `--image <storyboard-sheet-uuid>`. Mandatory minimum refs: storyboard sheet UUID + character sheet UUID.
   - In the prompt text, explicitly state that the storyboard image ref is a 9-panel storyboard sheet and is the visual blueprint for composition and timing. Example: `[Image N] is a 9-panel storyboard sheet showing the full sequence — use it as the visual blueprint for composition and timing.`
   - Always instruct the model to ignore burned-in frame numbers: `Ignore all frame numbers burned into [Image N]; do not render any digits or text overlays in the output.`
