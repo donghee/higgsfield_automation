@@ -12,3 +12,4 @@ ref-ids.md
 node_modules/
 !docs/*.mp4
 !docs/*.png
+outputs
