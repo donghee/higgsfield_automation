@@ -6,15 +6,15 @@
 
 ---
 
-## Model 1
+## Model N -- @NAME
 
 **Subject:**
 
 **Model description:**
 
 **Image References:**
-- model-1-char-sheet.png -> UUID
-- model-1-detail-1.png -> UUID
+- model-N-char-sheet.png -> UUID
+- model-N-detail-1.png -> UUID
 - FILENAME -> UUID
 
 **Video References:**

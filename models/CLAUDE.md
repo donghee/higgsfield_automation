@@ -14,34 +14,9 @@ Use Higgsfield's **Nano Banana Pro** model for generating Character Sheets and C
 
 ## Per-Model Section Content
 
+- **NAME** → Model tag name. Keep name to letters, numbers, hyphens (-), and underscores (_). Avoid spaces, commas, or periods within tag name
 - **Subject** → Brief model description
 - **Model description** → Detailed analysis: mood, appearance, outfit
 - **Image References** → Character sheet filename, close-up shot filename, model image filenames + UUIDs
 - **Video References** → Any reference video filenames + UUIDs for the model (omit this section if none exist)
-
-## Template Reference
-
-From `descriptions.template.md`:
-
-| Item | Format |
-|------|--------|
-| Character Sheet | `model-*-char-sheet.png` |
-| Close-up Shot | `model-*-detail-*.png` |
-| UUID | Asset ID uploaded to Higgsfield |
-
-```
-## Model N
-
-**Subject:**
-
-**Model description:**
-
-**Image References:**
-- model-N-char-sheet.png -> UUID
-- model-N-detail-1.png -> UUID
-- FILENAME -> UUID
-
-**Video References:**
-- FILENAME -> UUID
-```
 

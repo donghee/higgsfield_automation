@@ -8,10 +8,15 @@ UUID: Asset ID uploaded into higgsfield
 
 ----
 
-## FILENAME -- TITLE
+## Environment N -- @NAME
+
+**FILENAME**:
+
+**TITLE**:
+
 **UUID**: ``
+
 **Text description**:
 > 
-
 
 **Best for**: 
